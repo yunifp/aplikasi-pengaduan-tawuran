@@ -15,7 +15,21 @@ For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
 
+setup firebase 
+- npm install -g firebase-tools
+- firebase login
+- flutterfire configure
+- setup juga (authentiacion activated password email - firestore database)
+- setup sha1 key on project settings and add fingerprint
 
+setup cloudinary
+
+
+jadiin admin 
+- project settings - service account - generate private key - download and rename "serviceAccountKey"
+- cd set-admin-script
+- npm i
+- node setAdmin - after (paste path serviceAccountKey)
 
 list fitur yang belum
 - auth google (nunggu sha 1)

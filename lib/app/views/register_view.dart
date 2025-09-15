@@ -13,61 +13,51 @@ class RegisterView extends GetView<AuthController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Daftar Akun Baru'),
-        elevation: 0,
+        title: const Text('Buat Akun Baru'),
         backgroundColor: Colors.transparent,
-        foregroundColor: Colors.black,
+        foregroundColor: Colors.grey.shade800,
+        elevation: 0,
       ),
       body: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
           child: Form(
             key: _formKey,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text('Buat Akun', style: Get.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
+                Text('Buat Akun', style: Get.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
-                Text('Isi data di bawah untuk mendaftar', style: Get.textTheme.titleMedium),
+                Text('Bergabunglah dengan komunitas peduli keamanan.', style: Get.textTheme.bodyMedium?.copyWith(color: Colors.grey.shade600)),
                 const SizedBox(height: 40),
                 TextFormField(
                   controller: controller.nameController,
-                  decoration: const InputDecoration(labelText: 'Nama Lengkap', border: OutlineInputBorder()),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Nama tidak boleh kosong.';
-                    }
-                    return null;
-                  },
+                  decoration: const InputDecoration(labelText: 'Nama Lengkap', prefixIcon: Icon(Icons.person_outline)),
+                  validator: (value) => (value == null || value.isEmpty) ? 'Nama tidak boleh kosong' : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: controller.phoneController,
-                  decoration: const InputDecoration(labelText: 'Nomor HP', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(labelText: 'Nomor HP', prefixIcon: Icon(Icons.phone_outlined)),
                   keyboardType: TextInputType.phone,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Nomor HP tidak boleh kosong.';
-                    }
-                    return null;
-                  },
+                  validator: (value) => (value == null || value.isEmpty) ? 'Nomor HP tidak boleh kosong' : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: controller.emailController,
-                  decoration: const InputDecoration(labelText: 'Email', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(labelText: 'Email', prefixIcon: Icon(Icons.email_outlined)),
                   keyboardType: TextInputType.emailAddress,
-                  validator: (value) => (value == null || !value.isEmail) ? 'Masukkan email yang valid' : null,
+                  validator: (value) => (value == null || !GetUtils.isEmail(value)) ? 'Masukkan email yang valid' : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: controller.passwordController,
-                  decoration: const InputDecoration(labelText: 'Password', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(labelText: 'Password', prefixIcon: Icon(Icons.lock_outline)),
                   obscureText: true,
                   validator: (value) => (value == null || value.length < 6) ? 'Password minimal 6 karakter' : null,
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 24),
                 Obx(() => controller.isLoading.value
                     ? const Center(child: CircularProgressIndicator())
                     : ElevatedButton(
@@ -81,10 +71,9 @@ class RegisterView extends GetView<AuthController> {
                             );
                           }
                         },
-                        style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
-                        child: const Text('Daftar'),
+                        child: const Text('DAFTAR', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                       )),
-                const SizedBox(height: 20),
+                const SizedBox(height: 24),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

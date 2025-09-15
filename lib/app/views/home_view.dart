@@ -6,6 +6,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:lapor_tawuran/app/controllers/home_controller.dart';
 import 'package:lapor_tawuran/app/routes/app_pages.dart';
+import 'package:lapor_tawuran/app/views/my_reports_view.dart';
 import 'package:lapor_tawuran/app/views/profile_view.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -13,19 +14,34 @@ class HomeView extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> pages = [buildMapView(), const ProfileView()];
+    final List<Widget> pages = [
+      buildMapView(),
+      const MyReportsView(),
+      const ProfileView(),
+    ];
 
     return Scaffold(
-      body: Obx(
-        () => IndexedStack(index: controller.tabIndex.value, children: pages),
-      ),
+      body: Obx(() => IndexedStack(
+            index: controller.tabIndex.value,
+            children: pages,
+          )),
       bottomNavigationBar: Obx(
         () => BottomNavigationBar(
           currentIndex: controller.tabIndex.value,
           onTap: controller.changeTabIndex,
           items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.map), label: 'Peta'),
-            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.map),
+              label: 'Peta',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.list_alt),
+              label: 'Laporan Saya',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              label: 'Profil',
+            ),
           ],
         ),
       ),
@@ -60,7 +76,12 @@ class HomeView extends GetView<HomeController> {
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.example.lapor_tawuran',
               ),
-              MarkerLayer(markers: controller.markers.toList()),
+              MarkerLayer(
+                markers: controller.zoneMarkers.toList(),
+              ),
+              MarkerLayer(
+                markers: controller.iconMarkers.toList(),
+              ),
             ],
           );
         }),

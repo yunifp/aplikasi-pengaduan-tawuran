@@ -6,15 +6,22 @@ import 'package:lapor_tawuran/app/models/report_model.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:intl/intl.dart';
+import 'package:lapor_tawuran/app/views/widget/pulsing_circle.dart';
 
 class HomeController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   final RxList<Report> reports = RxList<Report>();
   final RxList<Marker> markers = RxList<Marker>();
+  final RxList<CircleMarker> dangerZones = RxList<CircleMarker>();
+   final RxList<Marker> iconMarkers = RxList<Marker>();
+  final RxList<Marker> zoneMarkers = RxList<Marker>();
   final Rx<Duration?> selectedFilter = Rx<Duration?>(null);
   var isLoading = true.obs;
   var tabIndex = 0.obs;
+
   StreamSubscription? _reportSubscription;
+
   void changeTabIndex(int index) {
     tabIndex.value = index;
   }
@@ -23,6 +30,10 @@ class HomeController extends GetxController {
   void onInit() {
     super.onInit();
     listenToReports();
+     ever(reports, (_) {
+      _buildIconMarkers();
+      _buildZoneMarkers();
+    });
   }
 
   @override
@@ -32,7 +43,6 @@ class HomeController extends GetxController {
   }
 
   Future<void> refreshData() async {
-    _reportSubscription?.cancel();
     listenToReports();
   }
 
@@ -56,11 +66,7 @@ class HomeController extends GetxController {
         final fetchedReports = reportSnapshot.docs
             .map((doc) => Report.fromFirestore(doc))
             .toList();
-
         reports.assignAll(fetchedReports);
-
-        _buildMarkers();
-
         isLoading.value = false;
       },
       onError: (error) {
@@ -72,8 +78,8 @@ class HomeController extends GetxController {
 
   void applyFilter(Duration? duration) {
     selectedFilter.value = duration;
-    listenToReports(); 
-    Get.back(); 
+    listenToReports();
+    Get.back();
   }
 
   void showFilterDialog() {
@@ -102,7 +108,7 @@ class HomeController extends GetxController {
     );
   }
 
-  void _buildMarkers() {
+  void _buildIconMarkers() {
     final newMarkers = reports.map((report) {
       return Marker(
         width: 80.0,
@@ -110,13 +116,44 @@ class HomeController extends GetxController {
         point: LatLng(report.location.latitude, report.location.longitude),
         child: GestureDetector(
           onTap: () => showReportDetails(report),
-          child: const Icon(Icons.location_on, color: Colors.red, size: 40.0),
+          child: const Icon(
+            Icons.warning_amber_rounded, 
+            color: Colors.red,
+            size: 35.0,
+            shadows: [Shadow(color: Colors.black54, blurRadius: 8.0)],
+          ),
         ),
       );
     }).toList();
-    markers.assignAll(newMarkers);
+    iconMarkers.assignAll(newMarkers);
   }
+  
+  void _buildZoneMarkers() {
+    final Map<String, List<Report>> reportsByLocation = {};
+    for (var report in reports) {
+      String key = '${report.location.latitude},${report.location.longitude}';
+      if (!reportsByLocation.containsKey(key)) {
+        reportsByLocation[key] = [];
+      }
+      reportsByLocation[key]!.add(report);
+    }
+    final newZones = reportsByLocation.entries.map((entry) {
+      final locationData = entry.key.split(',');
+      final lat = double.parse(locationData[0]);
+      final lng = double.parse(locationData[1]);
+      final reportCount = entry.value.length;
 
+      final Color zoneColor = reportCount > 1 ? Colors.red : Colors.orange;
+
+      return Marker(
+        width: 200,
+        height: 200,
+        point: LatLng(lat, lng),
+        child: PulsingCircle(color: zoneColor, size: 200),
+      );
+    }).toList();
+    zoneMarkers.assignAll(newZones);
+  }
   void showReportDetails(Report tappedReport) {
     final reportsAtSameLocation = reports.where((report) {
       return report.location.latitude == tappedReport.location.latitude &&
@@ -179,12 +216,12 @@ class HomeController extends GetxController {
                                 fit: BoxFit.cover,
                                 loadingBuilder:
                                     (context, child, loadingProgress) {
-                                      if (loadingProgress == null) return child;
-                                      return const Center(
-                                        heightFactor: 3,
-                                        child: CircularProgressIndicator(),
-                                      );
-                                    },
+                                  if (loadingProgress == null) return child;
+                                  return const Center(
+                                    heightFactor: 3,
+                                    child: CircularProgressIndicator(),
+                                  );
+                                },
                                 errorBuilder: (context, error, stackTrace) {
                                   return const Icon(
                                     Icons.error,

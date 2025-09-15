@@ -5,6 +5,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:lapor_tawuran/app/controllers/profile_controller.dart';
 import 'package:lapor_tawuran/app/controllers/my_reports_controller.dart';
+import 'package:lapor_tawuran/app/controllers/home_controller.dart';
 
 class AuthController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -63,6 +64,9 @@ class AuthController extends GetxController {
         }
         if (Get.isRegistered<MyReportsController>()) {
           Get.find<MyReportsController>().listenToMyReports();
+        }
+         if (Get.isRegistered<HomeController>()) {
+          Get.find<HomeController>().tabIndex.value = 0;
         }
       }
     } else {

@@ -1,11 +1,12 @@
-// lib/app/views/main_scaffold_view.dart
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
+import 'package:lapor_tawuran/app/controllers/auth_controller.dart';
 import 'package:lapor_tawuran/app/controllers/home_controller.dart';
 import 'package:lapor_tawuran/app/controllers/location_controller.dart';
 import 'package:lapor_tawuran/app/controllers/profile_controller.dart';
+import 'package:lapor_tawuran/app/views/admin/history_view.dart';
+import 'package:lapor_tawuran/app/views/admin/verification_list_view.dart';
 import 'package:lapor_tawuran/app/views/home_view.dart';
 import 'package:lapor_tawuran/app/views/my_reports_view.dart';
 import 'package:lapor_tawuran/app/views/profile_view.dart';
@@ -13,25 +14,44 @@ import 'package:lapor_tawuran/app/views/profile_view.dart';
 class MainScaffoldView extends GetView<HomeController> {
   MainScaffoldView({Key? key}) : super(key: key);
 
+  final AuthController authController = Get.find<AuthController>();
   final LocationController locationController = Get.find<LocationController>();
   final ProfileController profileController = Get.find<ProfileController>();
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> pages = [
-      HomeViewContent(),
-      const MyReportsView(),
-      const Center(child: Text("About Me Page")),
-      const ProfileView(),
-    ];
+    // Tentukan halaman dan ikon berdasarkan peran pengguna
+    final bool isAdmin = authController.isAdmin.value;
 
-    // Daftar ikon untuk navigasi
-    final iconList = <IconData>[
-      Icons.home_filled, // Home
-      Icons.article,     // Riwayat
-      Icons.info,        // About Me
-      Icons.person,      // Profile
-    ];
+    final List<Widget> pages = isAdmin
+        ? [
+            // Halaman untuk Admin
+            const VerificationListView(),
+            const HistoryView(),
+            const ProfileView(),
+          ]
+        : [
+            // Halaman untuk Pengguna Biasa
+            HomeViewContent(),
+            const MyReportsView(),
+            const Center(child: Text("About Me Page")),
+            const ProfileView(),
+          ];
+
+    final iconList = isAdmin
+        ? <IconData>[
+            // Ikon untuk Admin
+            Icons.pending_actions,
+            Icons.history,
+            Icons.person,
+          ]
+        : <IconData>[
+            // Ikon untuk Pengguna Biasa
+            Icons.home_filled,
+            Icons.article,
+            Icons.info,
+            Icons.person,
+          ];
 
     return Scaffold(
       appBar: PreferredSize(
@@ -79,18 +99,25 @@ class MainScaffoldView extends GetView<HomeController> {
           ],
         ),
       ),
-      body: Obx(() => IndexedStack(
-            index: controller.tabIndex.value,
-            children: pages,
-          )),
+      body: Obx(() {
+        // Pastikan tabIndex tidak melebihi jumlah halaman yang ada
+        final int activeIndex = controller.tabIndex.value < pages.length
+            ? controller.tabIndex.value
+            : 0;
+        return IndexedStack(
+          index: activeIndex,
+          children: pages,
+        );
+      }),
       bottomNavigationBar: Obx(
         () => AnimatedBottomNavigationBar(
           icons: iconList,
-          activeIndex: controller.tabIndex.value,
+          activeIndex: controller.tabIndex.value < pages.length
+              ? controller.tabIndex.value
+              : 0,
           gapLocation: GapLocation.none,
           notchSmoothness: NotchSmoothness.smoothEdge,
           onTap: (index) => controller.changeTabIndex(index),
-          // --- Kustomisasi Tampilan ---
           activeColor: Theme.of(context).primaryColor,
           inactiveColor: Colors.grey,
           backgroundColor: Colors.white,

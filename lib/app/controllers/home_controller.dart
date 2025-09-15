@@ -1,3 +1,5 @@
+// lib/app/controllers/home_controller.dart
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -14,7 +16,7 @@ class HomeController extends GetxController {
   final RxList<Report> reports = RxList<Report>();
   final RxList<Marker> markers = RxList<Marker>();
   final RxList<CircleMarker> dangerZones = RxList<CircleMarker>();
-   final RxList<Marker> iconMarkers = RxList<Marker>();
+  final RxList<Marker> iconMarkers = RxList<Marker>();
   final RxList<Marker> zoneMarkers = RxList<Marker>();
   final Rx<Duration?> selectedFilter = Rx<Duration?>(null);
   var isLoading = true.obs;
@@ -30,7 +32,7 @@ class HomeController extends GetxController {
   void onInit() {
     super.onInit();
     listenToReports();
-     ever(reports, (_) {
+    ever(reports, (_) {
       _buildIconMarkers();
       _buildZoneMarkers();
     });
@@ -50,9 +52,8 @@ class HomeController extends GetxController {
     isLoading.value = true;
     _reportSubscription?.cancel();
 
-    Query query = _firestore
-        .collection('reports')
-        .where('status', isEqualTo: 'verified');
+    Query query =
+        _firestore.collection('reports').where('status', isEqualTo: 'verified');
 
     if (selectedFilter.value != null) {
       DateTime startTime = DateTime.now().subtract(selectedFilter.value!);
@@ -63,9 +64,8 @@ class HomeController extends GetxController {
 
     _reportSubscription = query.snapshots().listen(
       (QuerySnapshot reportSnapshot) {
-        final fetchedReports = reportSnapshot.docs
-            .map((doc) => Report.fromFirestore(doc))
-            .toList();
+        final fetchedReports =
+            reportSnapshot.docs.map((doc) => Report.fromFirestore(doc)).toList();
         reports.assignAll(fetchedReports);
         isLoading.value = false;
       },
@@ -83,27 +83,53 @@ class HomeController extends GetxController {
   }
 
   void showFilterDialog() {
+    final Map<String, Duration?> filterOptions = {
+      'Semua Waktu': null,
+      '1 Jam Terakhir': const Duration(hours: 1),
+      '3 Jam Terakhir': const Duration(hours: 3),
+      '24 Jam Terakhir': const Duration(days: 1),
+    };
+
     Get.dialog(
-      SimpleDialog(
-        title: const Text('Filter Laporan'),
-        children: <Widget>[
-          SimpleDialogOption(
-            onPressed: () => applyFilter(null),
-            child: const Text('Semua Waktu'),
+      Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.0),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(left: 8.0, bottom: 12.0),
+                child: Text(
+                  'Filter Laporan',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
+              ...filterOptions.entries.map((entry) {
+                final text = entry.key;
+                final duration = entry.value;
+                final bool isSelected = selectedFilter.value == duration;
+
+                return ListTile(
+                  title: Text(text),
+                  onTap: () => applyFilter(duration),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  tileColor: isSelected
+                      ? Get.theme.primaryColor.withOpacity(0.1)
+                      : null,
+                  trailing: isSelected
+                      ? Icon(Icons.check_circle, color: Get.theme.primaryColor)
+                      : null,
+                );
+              }).toList(),
+            ],
           ),
-          SimpleDialogOption(
-            onPressed: () => applyFilter(const Duration(hours: 1)),
-            child: const Text('1 Jam Terakhir'),
-          ),
-          SimpleDialogOption(
-            onPressed: () => applyFilter(const Duration(hours: 3)),
-            child: const Text('3 Jam Terakhir'),
-          ),
-          SimpleDialogOption(
-            onPressed: () => applyFilter(const Duration(days: 1)),
-            child: const Text('24 Jam Terakhir'),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -117,7 +143,7 @@ class HomeController extends GetxController {
         child: GestureDetector(
           onTap: () => showReportDetails(report),
           child: const Icon(
-            Icons.warning_amber_rounded, 
+            Icons.warning_amber_rounded,
             color: Colors.red,
             size: 35.0,
             shadows: [Shadow(color: Colors.black54, blurRadius: 8.0)],
@@ -127,7 +153,7 @@ class HomeController extends GetxController {
     }).toList();
     iconMarkers.assignAll(newMarkers);
   }
-  
+
   void _buildZoneMarkers() {
     final Map<String, List<Report>> reportsByLocation = {};
     for (var report in reports) {
@@ -154,6 +180,7 @@ class HomeController extends GetxController {
     }).toList();
     zoneMarkers.assignAll(newZones);
   }
+
   void showReportDetails(Report tappedReport) {
     final reportsAtSameLocation = reports.where((report) {
       return report.location.latitude == tappedReport.location.latitude &&

@@ -10,10 +10,10 @@ import 'package:lapor_tawuran/app/bindings/profile_binding.dart';
 import 'package:lapor_tawuran/app/views/add_report_view.dart';
 import 'package:lapor_tawuran/app/views/admin/admin_dashboard_view.dart';
 import 'package:lapor_tawuran/app/views/admin/admin_report_detail_view.dart';
-import 'package:lapor_tawuran/app/views/home_view.dart';
 import 'package:lapor_tawuran/app/views/login_view.dart';
 import 'package:lapor_tawuran/app/views/register_view.dart';
 import 'package:lapor_tawuran/app/views/root_view.dart';
+import 'package:lapor_tawuran/app/views/main_scaffold_view.dart';
 
 part 'app_routes.dart';
 
@@ -33,7 +33,7 @@ class AppPages {
     ),
     GetPage(
       name: Routes.HOME,
-      page: () => HomeView(),
+      page: () => MainScaffoldView(),
       bindings: [
         HomeBinding(),
         ProfileBinding(),

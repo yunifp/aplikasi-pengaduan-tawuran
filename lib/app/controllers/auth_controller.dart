@@ -1,11 +1,10 @@
-// lib/app/controllers/auth_controller.dart
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:lapor_tawuran/app/controllers/profile_controller.dart';
+import 'package:lapor_tawuran/app/controllers/my_reports_controller.dart';
 
 class AuthController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -28,7 +27,7 @@ class AuthController extends GetxController {
     super.onInit();
     user.bindStream(_auth.authStateChanges());
     ever(user, _checkAdminRole);
-    
+
     emailController = TextEditingController();
     passwordController = TextEditingController();
     nameController = TextEditingController();
@@ -49,7 +48,8 @@ class AuthController extends GetxController {
     if (user != null) {
       try {
         IdTokenResult idTokenResult = await user.getIdTokenResult(true);
-        if (idTokenResult.claims != null && idTokenResult.claims!['admin'] == true) {
+        if (idTokenResult.claims != null &&
+            idTokenResult.claims!['admin'] == true) {
           isAdmin.value = true;
         } else {
           isAdmin.value = false;
@@ -61,6 +61,9 @@ class AuthController extends GetxController {
         if (Get.isRegistered<ProfileController>()) {
           Get.find<ProfileController>().fetchUserProfile();
         }
+        if (Get.isRegistered<MyReportsController>()) {
+          Get.find<MyReportsController>().listenToMyReports();
+        }
       }
     } else {
       isAdmin.value = false;
@@ -69,14 +72,19 @@ class AuthController extends GetxController {
   }
 
   void _showErrorSnackbar(String title, String message) {
-    Get.snackbar(title, message, snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
+    Get.snackbar(title, message,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white);
   }
 
-  Future<void> registerWithEmailAndPassword(String email, String password, String name, String phone) async {
+  Future<void> registerWithEmailAndPassword(
+      String email, String password, String name, String phone) async {
     isLoading.value = true;
     try {
-      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(email: email, password: password);
-      
+      UserCredential userCredential = await _auth
+          .createUserWithEmailAndPassword(email: email, password: password);
+
       if (userCredential.user != null) {
         String uid = userCredential.user!.uid;
         await _firestore.collection('users').doc(uid).set({
@@ -133,12 +141,14 @@ class AuthController extends GetxController {
         isLoading.value = false;
         return;
       }
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
       final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
-      UserCredential userCredential = await _auth.signInWithCredential(credential);
+      UserCredential userCredential =
+          await _auth.signInWithCredential(credential);
 
       if (userCredential.additionalUserInfo?.isNewUser == true) {
         User user = userCredential.user!;
@@ -151,13 +161,17 @@ class AuthController extends GetxController {
         });
       }
     } catch (e) {
-      _showErrorSnackbar("Error Login Google", "Gagal melakukan login: ${e.toString()}");
+      _showErrorSnackbar(
+          "Error Login Google", "Gagal melakukan login: ${e.toString()}");
     } finally {
       isLoading.value = false;
     }
   }
 
   Future<void> signOut() async {
+    if (Get.isRegistered<ProfileController>()) {
+      Get.find<ProfileController>().userProfile.value = null;
+    }
     await _googleSignIn.signOut();
     await _auth.signOut();
   }

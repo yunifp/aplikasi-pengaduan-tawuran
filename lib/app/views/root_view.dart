@@ -1,10 +1,11 @@
+// lib/app/views/root_view.dart
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lapor_tawuran/app/controllers/auth_controller.dart';
 import 'package:lapor_tawuran/app/views/admin/admin_dashboard_view.dart';
-import 'package:lapor_tawuran/app/views/home_view.dart';
 import 'package:lapor_tawuran/app/views/login_view.dart';
+import 'package:lapor_tawuran/app/views/main_scaffold_view.dart'; // Import baru
 
 class RootView extends GetView<AuthController> {
   const RootView({Key? key}) : super(key: key);
@@ -21,7 +22,7 @@ class RootView extends GetView<AuthController> {
           if (controller.isAdmin.value) {
             return AdminDashboardView();
           } else {
-            return HomeView();
+            return MainScaffoldView(); // Ganti ini
           }
         }
       } else {

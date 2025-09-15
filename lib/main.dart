@@ -1,9 +1,12 @@
+// lib/main.dart
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lapor_tawuran/firebase_options.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'app/controllers/auth_controller.dart';
+import 'app/controllers/location_controller.dart';
 import 'app/routes/app_pages.dart';
 
 void main() async {
@@ -15,6 +18,7 @@ void main() async {
     );
   }
   Get.put(AuthController(), permanent: true);
+  Get.put(LocationController(), permanent: true);
   runApp(const MyApp());
 }
 
@@ -23,19 +27,19 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const MaterialColor tokopediaGreen = MaterialColor(
-      0xFF42B549,
+    const MaterialColor laporTawuranOrange = MaterialColor(
+      0xFFFF7A00,
       <int, Color>{
-        50: Color(0xFFE8F5E9),
-        100: Color(0xFFC8E6C9),
-        200: Color(0xFFA5D6A7),
-        300: Color(0xFF81C784),
-        400: Color(0xFF66BB6A),
-        500: Color(0xFF4CAF50),
-        600: Color(0xFF43A047),
-        700: Color(0xFF388E3C),
-        800: Color(0xFF2E7D32),
-        900: Color(0xFF1B5E20),
+        50: Color(0xFFFFF3E0),
+        100: Color(0xFFFFE0B2),
+        200: Color(0xFFFFCC80),
+        300: Color(0xFFFFB74D),
+        400: Color(0xFFFFA726),
+        500: Color(0xFFFF9800),
+        600: Color(0xFFFB8C00),
+        700: Color(0xFFF57C00),
+        800: Color(0xFFEF6C00),
+        900: Color(0xFFE65100),
       },
     );
 
@@ -45,19 +49,23 @@ class MyApp extends StatelessWidget {
       initialRoute: AppPages.INITIAL,
       getPages: AppPages.routes,
       theme: ThemeData(
-        primarySwatch: tokopediaGreen,
+        primarySwatch: laporTawuranOrange,
         scaffoldBackgroundColor: Colors.grey[50],
-        appBarTheme: const AppBarTheme(
-          backgroundColor: tokopediaGreen,
-          foregroundColor: Colors.white,
-          elevation: 1,
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.white, // Latar belakang AppBar menjadi putih
+          foregroundColor: Colors.grey[800], // Warna ikon dan teks menjadi gelap
+          elevation: 0.5, // Sedikit bayangan
+          shadowColor: Colors.grey.shade200, // Warna bayangan
+          surfaceTintColor: Colors.transparent,
+          iconTheme: IconThemeData(color: Colors.grey[800]),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: tokopediaGreen,
+            backgroundColor: laporTawuranOrange,
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             elevation: 2,
           ),
         ),
@@ -72,6 +80,10 @@ class MyApp extends StatelessWidget {
           ),
           filled: true,
           fillColor: Colors.white,
+        ),
+        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+          selectedItemColor: laporTawuranOrange,
+          unselectedItemColor: Colors.grey,
         ),
       ),
     );

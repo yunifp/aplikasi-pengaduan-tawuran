@@ -1,3 +1,5 @@
+// lib/app/controllers/my_reports_controller.dart
+
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -35,11 +37,12 @@ class MyReportsController extends GetxController {
     isLoading.value = true;
     final query = _firestore
         .collection('reports')
-        .where('uid', isEqualTo: user.uid)
+        .where('uid', isEqualTo: user.uid) // Ini adalah baris kunci untuk memfilter
         .orderBy('timestamp', descending: true);
 
     _subscription = query.snapshots().listen((snapshot) {
-      final reports = snapshot.docs.map((doc) => Report.fromFirestore(doc)).toList();
+      final reports =
+          snapshot.docs.map((doc) => Report.fromFirestore(doc)).toList();
       myReports.assignAll(reports);
       isLoading.value = false;
     }, onError: (error) {

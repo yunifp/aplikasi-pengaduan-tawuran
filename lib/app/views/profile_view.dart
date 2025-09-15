@@ -1,5 +1,3 @@
-// lib/app/views/profile_view.dart
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lapor_tawuran/app/controllers/profile_controller.dart';
@@ -38,7 +36,8 @@ class ProfileView extends GetView<ProfileController> {
                           ? NetworkImage(user.photoUrl!)
                           : null,
                       child: user.photoUrl == null
-                          ? const Icon(Icons.person, size: 60, color: Colors.grey)
+                          ? const Icon(Icons.person,
+                              size: 60, color: Colors.grey)
                           : null,
                     ),
                     Positioned(
@@ -58,18 +57,23 @@ class ProfileView extends GetView<ProfileController> {
               const SizedBox(height: 32),
               TextFormField(
                 controller: controller.nameController,
-                decoration: const InputDecoration(labelText: "Nama", border: OutlineInputBorder()),
+                decoration: const InputDecoration(
+                    labelText: "Nama", border: OutlineInputBorder()),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: controller.phoneController,
-                decoration: const InputDecoration(labelText: "Nomor HP", border: OutlineInputBorder()),
+                decoration: const InputDecoration(
+                    labelText: "Nomor HP", border: OutlineInputBorder()),
                 keyboardType: TextInputType.phone,
               ),
               const SizedBox(height: 16),
               TextFormField(
-                initialValue: user.email,
-                decoration: const InputDecoration(labelText: "Email", border: OutlineInputBorder(), filled: true),
+                controller: controller.emailController,
+                decoration: const InputDecoration(
+                    labelText: "Email",
+                    border: OutlineInputBorder(),
+                    filled: true),
                 readOnly: true,
               ),
               const SizedBox(height: 32),

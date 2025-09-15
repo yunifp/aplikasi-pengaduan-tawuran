@@ -1,5 +1,3 @@
-// lib/app/controllers/profile_controller.dart
-
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -19,14 +17,17 @@ class ProfileController extends GetxController {
 
   late TextEditingController nameController;
   late TextEditingController phoneController;
+  late TextEditingController emailController;
 
-  final cloudinary = CloudinaryPublic('duzednwqo', 'lapor_tawuran_unsigned', cache: false);
+  final cloudinary =
+      CloudinaryPublic('duzednwqo', 'lapor_tawuran_unsigned', cache: false);
 
   @override
   void onInit() {
     super.onInit();
     nameController = TextEditingController();
     phoneController = TextEditingController();
+    emailController = TextEditingController();
     fetchUserProfile();
   }
 
@@ -34,6 +35,7 @@ class ProfileController extends GetxController {
   void onClose() {
     nameController.dispose();
     phoneController.dispose();
+    emailController.dispose();
     super.onClose();
   }
 
@@ -44,9 +46,10 @@ class ProfileController extends GetxController {
       isLoading.value = false;
       return;
     }
-    
+
     try {
-      DocumentSnapshot doc = await _firestore.collection('users').doc(user.uid).get();
+      DocumentSnapshot doc =
+          await _firestore.collection('users').doc(user.uid).get();
       if (doc.exists) {
         userProfile.value = UserModel.fromFirestore(doc);
       } else {
@@ -59,12 +62,14 @@ class ProfileController extends GetxController {
           'photoUrl': user.photoURL,
         };
         await _firestore.collection('users').doc(user.uid).set(defaultProfile);
-        DocumentSnapshot newDoc = await _firestore.collection('users').doc(user.uid).get();
+        DocumentSnapshot newDoc =
+            await _firestore.collection('users').doc(user.uid).get();
         userProfile.value = UserModel.fromFirestore(newDoc);
       }
 
       nameController.text = userProfile.value!.name;
       phoneController.text = userProfile.value!.phone;
+      emailController.text = userProfile.value!.email;
     } catch (e) {
       userProfile.value = null;
       Get.snackbar("Error", "Gagal memuat data profil: $e");
@@ -100,7 +105,7 @@ class ProfileController extends GetxController {
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
     if (image == null) return;
-    
+
     isLoading.value = true;
     User? user = _auth.currentUser;
     if (user == null) {
@@ -110,7 +115,8 @@ class ProfileController extends GetxController {
 
     try {
       CloudinaryResponse response = await cloudinary.uploadFile(
-        CloudinaryFile.fromFile(image.path, resourceType: CloudinaryResourceType.Image),
+        CloudinaryFile.fromFile(image.path,
+            resourceType: CloudinaryResourceType.Image),
       );
       String imageUrl = response.secureUrl;
       await _firestore.collection('users').doc(user.uid).update({
